@@ -5,28 +5,25 @@ from fastapi import FastAPI
 from fastapi.openapi.utils import get_openapi
 from fastapi.routing import APIRoute
 from fastapi_jwt_auth import AuthJWT
-#
-# from users_mgt.routes.auth.auth_routes import auth_router
-# from routes.conferences.conference_routes import conference_router
-# from database.auth.schema import Setting
-# from database.database import Base, engine
+
+from database.auth.schema import Setting
+from database.database import Base, engine
 
 
-# Base.metadata.create_all(bind=engine)
+Base.metadata.create_all(bind=engine)
 
-
-app = FastAPI()
+users_app = FastAPI()
 
 
 # def custom_openapi():
-#     if app.openapi_schema:
-#         return app.openapi_schema
+#     if users_app.openapi_schema:
+#         return users_app.openapi_schema
 #
 #     openapi_schema = get_openapi(
-#         title="conference maker",
+#         title="conference maker users ",
 #         version="1.0",
-#         description="An API for conference making",
-#         routes=app.routes,
+#         description="conference maker auth microservice",
+#         routes=users_app.routes,
 #     )
 #
 #     openapi_schema["components"]["securitySchemes"] = {
@@ -39,7 +36,7 @@ app = FastAPI()
 #     }
 #
 #     # Get all routes where jwt_optional() or jwt_required
-#     api_router = [route for route in app.routes if isinstance(route, APIRoute)]
+#     api_router = [route for route in users_app.routes if isinstance(route, APIRoute)]
 #
 #     for route in api_router:
 #         path = getattr(route, "path")
@@ -59,17 +56,14 @@ app = FastAPI()
 #                     }
 #                 ]
 #
-#     app.openapi_schema = openapi_schema
-#     return app.openapi_schema
+#     users_app.openapi_schema = openapi_schema
+#     return users_app.openapi_schema
 #
 #
-# app.openapi = custom_openapi
+# users_app.openapi = custom_openapi
 
 
-# @AuthJWT.load_config
-# def get_config():
-#     return Setting()
-#
+@AuthJWT.load_config
+def get_config():
+    return Setting()
 
-# app.include_router(auth_router)
-# app.include_router(conference_router)

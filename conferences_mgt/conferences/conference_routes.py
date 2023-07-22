@@ -1,13 +1,13 @@
 from fastapi import APIRouter, status, Depends
-from database.database import SessionLocal, engine
+from conferences_mgt.database.database import SessionLocal, engine
 from fastapi.exceptions import HTTPException
 
 from fastapi_jwt_auth import AuthJWT
 from fastapi.encoders import jsonable_encoder
 
-from database.auth.models import User
-from database.conferences.models import Conferences
-from database.conferences.schema import ConferenceModel
+from conferences_mgt.database.auth.models import User
+from conferences_mgt.database.conferences.models import Conferences
+from conferences_mgt.database.conferences.schema import ConferenceModel
 
 
 conference_router = APIRouter(

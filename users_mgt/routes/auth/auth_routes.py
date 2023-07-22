@@ -1,7 +1,7 @@
 from fastapi import APIRouter, status, Depends
-from database.database import SessionLocal, engine
-from database.auth.schema import SignUpModel, LoginModel
-from database.auth.models import User
+from users_mgt.database.database import SessionLocal, engine
+from users_mgt.database.auth.schema import SignUpModel, LoginModel
+from users_mgt.database.auth.models import User
 from fastapi.exceptions import HTTPException
 from werkzeug.security import generate_password_hash, check_password_hash
 from fastapi_jwt_auth import AuthJWT

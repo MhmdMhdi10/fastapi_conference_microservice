@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
 from sqlalchemy_utils.types import ChoiceType
 from sqlalchemy.orm import relationship
-from database.database import Base
+from conferences_mgt.database.database import Base
 
 
 class Conferences(Base):
