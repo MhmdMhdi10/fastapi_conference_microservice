@@ -9,7 +9,7 @@ from fastapi.encoders import jsonable_encoder
 
 
 auth_router = APIRouter(
-prefix="/auth",
+    # prefix="/auth",
     tags=["auth"]
 )
 

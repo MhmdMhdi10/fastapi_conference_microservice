@@ -12,7 +12,7 @@ import requests
 
 
 conference_router = APIRouter(
-    prefix="/conferences",
+    # prefix="/conferences",
     tags=["conferences"]
 )
 

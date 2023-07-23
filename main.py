@@ -1,75 +1,9 @@
-import inspect
-import re
-
 from fastapi import FastAPI
-from fastapi.openapi.utils import get_openapi
-from fastapi.routing import APIRoute
-from fastapi_jwt_auth import AuthJWT
-#
-# from users_mgt.routes.auth.auth_routes import auth_router
-# from routes.conferences.conference_routes import conference_router
-# from database.auth.schema import Setting
-# from database.database import Base, engine
 
-
-# Base.metadata.create_all(bind=engine)
-
+from users_mgt import users_main
+from conferences_mgt import conference_main
 
 app = FastAPI()
 
-
-# def custom_openapi():
-#     if app.openapi_schema:
-#         return app.openapi_schema
-#
-#     openapi_schema = get_openapi(
-#         title="conference maker",
-#         version="1.0",
-#         description="An API for conference making",
-#         routes=app.routes,
-#     )
-#
-#     openapi_schema["components"]["securitySchemes"] = {
-#         "Bearer Auth": {
-#             "type": "apiKey",
-#             "in": "header",
-#             "name": "Authorization",
-#             "description": "Enter: **'Bearer &lt;JWT&gt;'**, where JWT is the access token"
-#         }
-#     }
-#
-#     # Get all routes where jwt_optional() or jwt_required
-#     api_router = [route for route in app.routes if isinstance(route, APIRoute)]
-#
-#     for route in api_router:
-#         path = getattr(route, "path")
-#         endpoint = getattr(route, "endpoint")
-#         methods = [method.lower() for method in getattr(route, "methods")]
-#
-#         for method in methods:
-#             # access_token
-#             if (
-#                     re.search("jwt_required", inspect.getsource(endpoint)) or
-#                     re.search("fresh_jwt_required", inspect.getsource(endpoint)) or
-#                     re.search("jwt_optional", inspect.getsource(endpoint))
-#             ):
-#                 openapi_schema["paths"][path][method]["security"] = [
-#                     {
-#                         "Bearer Auth": []
-#                     }
-#                 ]
-#
-#     app.openapi_schema = openapi_schema
-#     return app.openapi_schema
-#
-#
-# app.openapi = custom_openapi
-#
-#
-# @AuthJWT.load_config
-# def get_config():
-#     return Setting()
-
-
-# app.include_router(auth_router)
-# app.include_router(conference_router)
+app.mount("/auth", users_main.users_app)
+app.mount("/conferences_mgt", conference_main.conference_app)
