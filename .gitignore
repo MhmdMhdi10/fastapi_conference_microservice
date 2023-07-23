@@ -1,3 +1,4 @@
 /venv/
 /database/auth/.env
 /users_mgt/database/auth/.env
+.idea

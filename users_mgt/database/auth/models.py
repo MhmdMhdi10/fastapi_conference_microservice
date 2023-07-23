@@ -9,7 +9,6 @@ class User(Base):
     id = Column(Integer, primary_key=True)
     username = Column(String(30), unique=True)
     password = Column(Text, nullable=True)
-    conference = relationship("Conferences", back_populates="user")
 
     def __repr__(self):
         return f"User : {self.username}"

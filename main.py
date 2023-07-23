@@ -64,12 +64,12 @@ app = FastAPI()
 #
 #
 # app.openapi = custom_openapi
-
-
+#
+#
 # @AuthJWT.load_config
 # def get_config():
 #     return Setting()
-#
+
 
 # app.include_router(auth_router)
 # app.include_router(conference_router)

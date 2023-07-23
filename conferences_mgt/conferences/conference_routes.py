@@ -1,13 +1,14 @@
 from fastapi import APIRouter, status, Depends
-from conferences_mgt.database.database import SessionLocal, engine
+from database.database import SessionLocal, engine
 from fastapi.exceptions import HTTPException
 
 from fastapi_jwt_auth import AuthJWT
 from fastapi.encoders import jsonable_encoder
 
-from conferences_mgt.database.auth.models import User
-from conferences_mgt.database.conferences.models import Conferences
-from conferences_mgt.database.conferences.schema import ConferenceModel
+from database.conferences.models import Conferences
+from database.conferences.schema import ConferenceModel
+
+import requests
 
 
 conference_router = APIRouter(
@@ -18,8 +19,13 @@ conference_router = APIRouter(
 session = SessionLocal(bind=engine)
 
 
+def validate_token(token):
+    resp = requests.get("http://localhost:8000/validate", headers={"Authorization": f"Bearer {token}"})
+    return resp.json()["valid"]
+
+
 @conference_router.post("/conference", status_code=status.HTTP_201_CREATED)
-async def create_conference(conference: ConferenceModel, authorize: AuthJWT = Depends()):
+async def create_conference(conference: ConferenceModel, token: str = Depends(validate_token)):
     """
     ## create new conference
     this requires the following:
@@ -29,15 +35,10 @@ async def create_conference(conference: ConferenceModel, authorize: AuthJWT = De
     - end_time: Optional[datetime]
     - Capacity: int
     """
-    try:
-        authorize.jwt_required()
-
-    except Exception as e:
+    if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized")
 
-    current_user = authorize.get_jwt_subject()
-
-    user = session.query(User).filter(User.username == current_user).first()
+    user = requests.get("http://localhost:8000/users/me", headers={"Authorization": f"Bearer {token}"})
 
     new_conference = Conferences(
         title=conference.title,
@@ -47,7 +48,7 @@ async def create_conference(conference: ConferenceModel, authorize: AuthJWT = De
         Capacity=conference.Capacity
     )
 
-    new_conference.user = user
+    new_conference.user_username = user
 
     session.add(new_conference)
 
@@ -65,13 +66,11 @@ async def create_conference(conference: ConferenceModel, authorize: AuthJWT = De
 
 
 @conference_router.get("/conferences", status_code=status.HTTP_200_OK)
-async def list_all_conferences(authorize: AuthJWT = Depends()):
+async def list_all_conferences(token: str = Depends(validate_token)):
     """
         ## listing all conferences
     """
-    try:
-        authorize.jwt_required()
-    except Exception as e:
+    if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized")
 
     conferences = session.query(Conferences).all()
@@ -80,7 +79,7 @@ async def list_all_conferences(authorize: AuthJWT = Depends()):
 
 
 @conference_router.put("/conferences/{conference_id}", status_code=status.HTTP_200_OK)
-async def update_conference(conference_id: int, conference: ConferenceModel, authorize: AuthJWT = Depends()):
+async def update_conference(conference_id: int, conference: ConferenceModel, token: str = Depends(validate_token)):
     """
         ## Updating a conference
         this updates a conference requires the following list:
@@ -91,9 +90,7 @@ async def update_conference(conference_id: int, conference: ConferenceModel, aut
         - end_time: datetime
     """
 
-    try:
-        authorize.jwt_required()
-    except Exception as e:
+    if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized")
 
     try:
@@ -127,15 +124,13 @@ async def update_conference(conference_id: int, conference: ConferenceModel, aut
 
 
 @conference_router.delete("/conferences/{conference_id}", status_code=status.HTTP_200_OK)
-async def delete_conference(conference_id: int, authorize: AuthJWT = Depends()):
+async def delete_conference(conference_id: int, token: str = Depends(validate_token)):
     """
         ## deleting a conference
         this deletes a conference
     """
 
-    try:
-        authorize.jwt_required()
-    except Exception as e:
+    if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized")
 
     conference_to_delete = session.query(Conferences).filter(Conferences.id == conference_id).first()

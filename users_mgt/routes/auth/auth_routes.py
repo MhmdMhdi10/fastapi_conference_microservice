@@ -1,11 +1,12 @@
 from fastapi import APIRouter, status, Depends
-from users_mgt.database.database import SessionLocal, engine
-from users_mgt.database.auth.schema import SignUpModel, LoginModel
-from users_mgt.database.auth.models import User
+from database.database import SessionLocal, engine
+from database.auth.schema import SignUpModel, LoginModel
+from database.auth.models import User
 from fastapi.exceptions import HTTPException
 from werkzeug.security import generate_password_hash, check_password_hash
 from fastapi_jwt_auth import AuthJWT
 from fastapi.encoders import jsonable_encoder
+
 
 auth_router = APIRouter(
 prefix="/auth",
@@ -63,7 +64,7 @@ async def login(user: LoginModel, authorize: AuthJWT = Depends()):
 
         response = {
             "access": access_token,
-            "refresh": refresh_token
+            "refresh": refresh_token,
         }
 
         return jsonable_encoder(response)
@@ -90,3 +91,46 @@ async def refresh(authorize: AuthJWT = Depends()):
     access_token = authorize.create_access_token(subject=current_user)
 
     return jsonable_encoder({"access": access_token})
+
+
+@auth_router.post("/validate")
+async def validate(authorize: AuthJWT = Depends()):
+    """
+        ## Validates tokens
+        This creates a fresh token. it requires a refresh token.
+    """
+    try:
+        authorize.jwt_required()
+        response = {
+            "valid": True
+        }
+    except Exception as e:
+        response = {
+            "valid": False
+        }
+
+    return jsonable_encoder(response)
+
+
+@auth_router.get("users/me")
+async def get_user_info(authorize: AuthJWT = Depends()):
+    """
+        ## Returns username
+    """
+
+    try:
+        authorize.jwt_required()
+
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="you are not logged in")
+
+    username = authorize.get_jwt_subject()
+
+    response = {
+        "username": username
+    }
+
+    return jsonable_encoder(response)
+
+
+

@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
 from sqlalchemy_utils.types import ChoiceType
 from sqlalchemy.orm import relationship
-from conferences_mgt.database.database import Base
+from database.database import Base
 
 
 class Conferences(Base):
@@ -12,8 +12,8 @@ class Conferences(Base):
     start_time = Column(DateTime)
     end_time = Column(DateTime)
     Capacity = Column(Integer)
-    user_id = Column(Integer, ForeignKey("users.id"))
-    user = relationship("User", back_populates="conference")
+    user_username = Column(String)
 
     def __repr__(self):
         return f"Order : {self.id}"
+
